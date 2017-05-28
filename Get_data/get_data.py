@@ -37,13 +37,12 @@ if __name__ == '__main__':
     password = "x0d1hpdsXs2S48T6E6ww"
     #command = "/observed_data?customer=0060_SONYCSL001"
 
-    ### Set start and end time
-    st = "2017-05-22 00:00:00"
-    #et = "2017-05-15 00:00:00"
+    ### Set start and end time ###
+    st = "2017-05-13 00:00:00"
+    day_len = 14
     tunits = "20"   # 20 -> each minute
     st_dt = datetime.datetime.strptime(st, '%Y-%m-%d %H:%M:%S')
-    #et_dt = datetime.datetime.strptime(et, '%Y-%m-%d %H:%M:%S')
-    et_dt = st_dt + datetime.timedelta(days=1)
+    et_dt = st_dt + datetime.timedelta(days=day_len)
     st_unix = int(time.mktime(st_dt.timetuple()))
     et_unix = int(time.mktime(et_dt.timetuple()))
     sts = str(st_unix)
@@ -53,18 +52,21 @@ if __name__ == '__main__':
     cuslist = getcustomers(base_url, user, password)
     customer = cuslist['customers'][0]['customer']
     print("get customers information")
+    
     data = getdata(base_url, user, password, customer, duration)    # pay attention for several customers (so far only one customer)
     print("get {} data from {} to {}".format(customer, st_dt, et_dt))
 
     utime = data['data'][0]['timestamps']
     power = data['data'][0]['root_powers']
     
-    output = pd.DataFrame({'time': utime, 'power': power})
-    output['time'] = output['time'].apply(lambda x: datetime.datetime.fromtimestamp(x))
+    output = pd.DataFrame({'TIME': utime, 'POWER': power})
+    output['TIME'] = output['TIME'].apply(lambda x: datetime.datetime.fromtimestamp(x))
     
-    filename = customer + "_" + str(datetime.datetime.date(st_dt))
+    filename = customer + "_" + str(datetime.datetime.date(st_dt)) + "_" + str(datetime.datetime.date(et_dt - datetime.timedelta(days=1)))
     os.chdir("data")
     output.to_csv(filename + ".csv")
     print("output data to {}.csv".format(filename))
-    
+
+    #print(output.head())
+    #print(output.tail())
     

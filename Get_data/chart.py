@@ -95,18 +95,33 @@ def linechart(df1, df2, title):
  
 
 def barplot(df1, df2, title):
-    fig, ax = plt.subplots(figsize=(10,5))
-    xval = np.arange(len(df1))
-    print(xval)
-    plt.bar(df1.index, df1, color="blue")
+    fig, ax = plt.subplots()
+    width = 0.5
+    colors = ['blue', 'lightblue', 'green', 'darkgray']
+    labels = ['0:00-6:00', '6:00-12:00', '12:00-18:00', '18:00-24:00']
+    df_plt = pd.concat([df1['POWER'], df2['POWER']], axis=1)
+    df_plt = df_plt.T
+    bottom = np.zeros(df_plt.shape[0])
+    xval = np.arange(len(df_plt))
+    
     plt.title(title)
     plt.ylabel("[kWh]")
-
+    for i in range(df_plt.shape[1]):
+        plt.bar(xval, df_plt.iloc[:,i], width, bottom, color=colors[i], label=labels[i])
+        for j in range(len(df_plt)):
+            ann = ax.annotate("{:.2f}".format(df_plt.iloc[j,i]), xy=(xval[j]-width*0.1, bottom[j]+df_plt.iloc[j,i]*0.45),fontsize=12, color="white")
+        bottom += df_plt.iloc[:,i]
+    
     #fig.subplots_adjust(left=0.12, bottom=0.19, right=0.9, top=0.9, wspace=0.15, hspace=0.15)
-    #ax.spines['right'].set_color('none')
-    #ax.spines['top'].set_color('none')
+    plt.xticks(xval, ["Weekday", "Weekend"])
+    handles, labels = ax.get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], bbox_to_anchor=(0.64, 0.3), fontsize=9)
+    #fig.subplots_adjust(left=0.15, bottom=0.1, right=0.9, top=0.9, wspace=0.15, hspace=0.15)
+    plt.tick_params(top='off', bottom='off', left='off', right='off', labelleft='off', labelbottom='on')    
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
     plt.show()
- 
+
          
 def data_aggregation(df1):
     day = df1.columns
@@ -151,7 +166,7 @@ def data_aggregation(df1):
     df_we_agg = pd.DataFrame({'TIME': ['0:00-6:00', '6:00-12:00', '12:00-18:00', '18:00-24:00'], 'POWER': we})
 
     #linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()))
-    barplot(df_wd_agg, df_we_agg, "Title")
+    barplot(df_wd_agg, df_we_agg, "Energy Consumption")
     
     print("Peak: {:.2f} kW".format(peak))
     print("Weekdays: {:.2f} kWh".format(wd_ave))

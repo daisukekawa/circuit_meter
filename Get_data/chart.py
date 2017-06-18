@@ -73,26 +73,39 @@ def dayschart(df1, ylimit):
     #ax.text(0, 2400, 'Total energy is {:,d} Wh'.format(len(df1)))
     plt.show()
 
-def linechart(df1, df2, title):
+def linechart(df1, df2, title, ylim):
     time = df1.index
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     xtick = ['0:00', '2:00', '4:00', '6:00', '8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00']
     xunit = 7200
     xval = np.arange(0, xunit * 13, xunit)
-    ax.set_ylabel("[kW]")
+    ax.set_ylabel("[W]")
     ax.set_xticks(xval)
     ax.set_xticklabels(xtick, rotation=45)
+    ax.set_ylim(ylim)
     plt.title(title)
     plt.plot(time, df1, lw = 1, color = "blue", label = "weekday.ave")
     plt.plot(time, df2, lw = 1, color = "orangered", label = "weekend.ave")
     df1_ave = df1.mean(axis=1).mean()/1000*24
     df2_ave = df2.mean(axis=1).mean()/1000*24
-    ax.text(0, 850, 'Weekday: {:.2f} kWh'.format(df1_ave))
-    ax.text(0, 800, 'Weekend: {:.2f} kWh'.format(df2_ave))
+    ax.text(0, ylim[1]-50, 'Weekday: {:.2f} kWh'.format(df1_ave))
+    ax.text(0, ylim[1]-100, 'Weekend: {:.2f} kWh'.format(df2_ave))
     plt.legend()    
     plt.show()
  
+def linechart2(df1, title, ylim):
+    day = df1.index
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.set_ylabel("[kWh]")
+    #ax.set_xticklabels(xtick, rotation=45)
+    ax.set_ylim(ylim)
+    plt.title(title)
+    plt.plot(day, df1, lw = 1, color = "blue", label = "consumption")
+    plt.legend()    
+    plt.show()
+
 
 def barplot(df1, df2, title):
     fig, ax = plt.subplots()
@@ -125,16 +138,20 @@ def barplot(df1, df2, title):
          
 def data_aggregation(df1):
     day = df1.columns
+    df_all = pd.DataFrame()
     df_weekday = pd.DataFrame()
     df_weekend= pd.DataFrame()
+    
     for i in range(len(day)):
         if(datetime.date.weekday(day[i]) < 5):
             df_weekday = df_weekday.append(df1[day[i]])
         else:
             df_weekend= df_weekend.append(df1[day[i]])
+        
     df_weekday = df_weekday.T
     df_weekend= df_weekend.T
-    
+
+    df_all = df1.mean(axis=0)*24/1000
     df_wd_ave = pd.DataFrame({'POWER': df_weekday.mean(axis=1)})
     df_wd_ave.index = df1.index
     df_we_ave = pd.DataFrame({'POWER': df_weekend.mean(axis=1)})
@@ -165,8 +182,11 @@ def data_aggregation(df1):
     df_wd_agg = pd.DataFrame({'TIME': ['0:00-6:00', '6:00-12:00', '12:00-18:00', '18:00-24:00'], 'POWER': wd})
     df_we_agg = pd.DataFrame({'TIME': ['0:00-6:00', '6:00-12:00', '12:00-18:00', '18:00-24:00'], 'POWER': we})
 
-    #linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()))
-    barplot(df_wd_agg, df_we_agg, "Energy Consumption")
+    ylim = [0, 1000]
+    ylim2 = [0, 15]
+    linechart2(df_all,"Energy consumption of every day", ylim2)
+    #linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
+    #barplot(df_wd_agg, df_we_agg, "Energy Consumption")
     
     print("Peak: {:.2f} kW".format(peak))
     print("Weekdays: {:.2f} kWh".format(wd_ave))
@@ -175,13 +195,13 @@ def data_aggregation(df1):
     print("Weekends: {:.2f} kWh".format(we_ave))
     print("   0:00-6:00: {:.2f} kWh, 6:00-12:00: {:.2f} kWh, 12:00-18:00: {:.2f} kWh, 18:00-24:00: {:.2f} kWh"
           .format(we_ave1['POWER'], we_ave2['POWER'], we_ave3['POWER'], we_ave4['POWER']))
-    
+    print(df_all)
 
 if __name__ == '__main__': 
     os.chdir("data")
     customer = "0060_SONYCSL001"
     st_dt = "2017-05-13"
-    et_dt = "2017-05-26"
+    et_dt = "2017-06-12"
     data = pd.read_csv(customer + "_" + st_dt + "_" + et_dt + ".csv")
     df_day = makedaydf(data, 60*24, "POWER")
     #dayschart(df_day, [0, 2000])

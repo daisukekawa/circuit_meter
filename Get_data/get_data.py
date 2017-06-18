@@ -39,10 +39,12 @@ if __name__ == '__main__':
 
     ### Set start and end time ###
     st = "2017-05-13 00:00:00"
-    day_len = 14
+    et = "2017-06-18 00:00:00"
+    #day_len = 31
     tunits = "20"   # 20 -> each minute
     st_dt = datetime.datetime.strptime(st, '%Y-%m-%d %H:%M:%S')
-    et_dt = st_dt + datetime.timedelta(days=day_len)
+    et_dt = datetime.datetime.strptime(et, '%Y-%m-%d %H:%M:%S')
+    #et_dt = st_dt + datetime.timedelta(days=day_len)
     st_unix = int(time.mktime(st_dt.timetuple()))
     et_unix = int(time.mktime(et_dt.timetuple()))
     sts = str(st_unix)

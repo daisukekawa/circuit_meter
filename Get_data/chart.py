@@ -94,16 +94,30 @@ def linechart(df1, df2, title, ylim):
     plt.legend()    
     plt.show()
  
-def linechart2(df1, title, ylim):
-    day = df1.index
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
-    ax.set_ylabel("[kWh]")
-    #ax.set_xticklabels(xtick, rotation=45)
-    ax.set_ylim(ylim)
-    plt.title(title)
-    plt.plot(day, df1, lw = 1, color = "blue", label = "consumption")
-    plt.legend()    
+def linechart2(df_day, df_w):
+    df_d = df_day.mean(axis=0)*24/1000
+    days = len(df_d)
+    df_w = df_w[0:days]
+
+    day = df_day.index
+    fig, (ax0, ax1, ax2) = plt.subplots(nrows = 3, sharex = False, figsize=(10,8))
+
+    ax0.plot(df_d)
+    ax1.plot(df_w['TEMP_AVE'], lw = 1, color = "green", label = "TEMP_AVE")
+    ax1.plot(df_w['TEMP_MAX'], lw = 1, color = "green", label = "TEMP_MAX")
+    ax1.plot(df_w['TEMP_MIN'], lw = 1, color = "green", label = "TEMP_MIN")
+    ax2.plot(df_w['SUN_RADIATION'], lw = 1, color = 'orange')
+    ax1.tick_params(top='off', bottom='off', left='on', right='off', labelleft='on', labelbottom='off')    
+    ax2.tick_params(top='off', bottom='off', left='on', right='off', labelleft='on', labelbottom='off')    
+    ax0.set_ylabel("Demand [kWh]", fontsize = 8)
+    ax1.set_ylabel("Temp. [Celsius]", fontsize = 8)
+    ax2.set_ylabel("Sun Radiation [MJ/m2]", fontsize = 8)
+    for label in (ax0.get_xticklabels() + ax0.get_yticklabels()):
+        label.set_fontsize(8)
+    for label in (ax1.get_xticklabels() + ax1.get_yticklabels()):
+        label.set_fontsize(8)
+    for label in (ax2.get_xticklabels() + ax2.get_yticklabels()):
+        label.set_fontsize(8)
     plt.show()
 
 
@@ -151,7 +165,7 @@ def data_aggregation(df1):
     df_weekday = df_weekday.T
     df_weekend= df_weekend.T
 
-    df_all = df1.mean(axis=0)*24/1000
+    #df_all = df1.mean(axis=0)*24/1000
     df_wd_ave = pd.DataFrame({'POWER': df_weekday.mean(axis=1)})
     df_wd_ave.index = df1.index
     df_we_ave = pd.DataFrame({'POWER': df_weekend.mean(axis=1)})
@@ -184,7 +198,7 @@ def data_aggregation(df1):
 
     ylim = [0, 1000]
     ylim2 = [0, 15]
-    linechart2(df_all,"Energy consumption of every day", ylim2)
+    #linechart2(df_all,"Energy consumption of days", ylim2)
     #linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
     #barplot(df_wd_agg, df_we_agg, "Energy Consumption")
     
@@ -195,8 +209,14 @@ def data_aggregation(df1):
     print("Weekends: {:.2f} kWh".format(we_ave))
     print("   0:00-6:00: {:.2f} kWh, 6:00-12:00: {:.2f} kWh, 12:00-18:00: {:.2f} kWh, 18:00-24:00: {:.2f} kWh"
           .format(we_ave1['POWER'], we_ave2['POWER'], we_ave3['POWER'], we_ave4['POWER']))
-    print(df_all)
+    #print(df_all)
 
+def weather():
+    wdata = pd.read_csv("weather.csv", usecols=(0,1,8,11,14))
+    wdata.columns = ['DAY', 'TEMP_AVE', 'TEMP_MAX', 'TEMP_MIN', 'SUN_RADIATION'] #SUN_RADIATION [MJ/m2]
+    #print(wdata)
+    return wdata
+    
 if __name__ == '__main__': 
     os.chdir("data")
     customer = "0060_SONYCSL001"
@@ -205,6 +225,8 @@ if __name__ == '__main__':
     data = pd.read_csv(customer + "_" + st_dt + "_" + et_dt + ".csv")
     df_day = makedaydf(data, 60*24, "POWER")
     #dayschart(df_day, [0, 2000])
+    df_w = weather()
+    linechart2(df_day, df_w)
     data_aggregation(df_day)
     #print(data)
 

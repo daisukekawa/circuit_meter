@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     ### Set start and end time ###
     st = "2017-05-13 00:00:00"
-    et = "2017-06-18 00:00:00"
+    et = "2017-06-21 00:00:00"
     #day_len = 31
     tunits = "20"   # 20 -> each minute
     st_dt = datetime.datetime.strptime(st, '%Y-%m-%d %H:%M:%S')
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     cuslist = getcustomers(base_url, user, password)
     customer = cuslist['customers'][0]['customer']
-    print("get customers information")
+    print("get customers {}".format(customer))
     
     data = getdata(base_url, user, password, customer, duration)    # pay attention for several customers (so far only one customer)
     print("get {} data from {} to {}".format(customer, st_dt, et_dt))

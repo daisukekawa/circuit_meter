@@ -4,19 +4,19 @@ import pandas as pd
 import numpy as np
 import os
 
-def makedaydf(df1, day_len, colname):
+def makedaydf(df1, colname):
     datetime = pd.DatetimeIndex(df1["TIME"])
     date = np.unique(datetime.date)
     time = np.unique(datetime.time)
- 
+    
     df1["TIME"] = datetime.time
     df1 = df1.set_index("TIME")
     df = pd.DataFrame()
     dft = df1[colname]
  
     for i in range(len(date)):
-        rows = day_len * i
-        rowe = day_len * (i + 1)
+        rows = len(time) * i
+        rowe = len(time) * (i + 1)
         df[date[i]] = dft.iloc[rows:rowe]
     return df
  
@@ -221,9 +221,9 @@ if __name__ == '__main__':
     os.chdir("data")
     customer = "0060_SONYCSL001"
     st_dt = "2017-05-13"
-    et_dt = "2017-06-12"
+    et_dt = "2017-06-20"
     data = pd.read_csv(customer + "_" + st_dt + "_" + et_dt + ".csv")
-    df_day = makedaydf(data, 60*24, "POWER")
+    df_day = makedaydf(data, "POWER")
     #dayschart(df_day, [0, 2000])
     df_w = weather()
     linechart2(df_day, df_w)

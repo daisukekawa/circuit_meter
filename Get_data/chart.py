@@ -198,8 +198,7 @@ def data_aggregation(df1):
 
     ylim = [0, 1000]
     ylim2 = [0, 15]
-    #linechart2(df_all,"Energy consumption of days", ylim2)
-    #linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
+    linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
     #barplot(df_wd_agg, df_we_agg, "Energy Consumption")
     
     print("Peak: {:.2f} kW".format(peak))
@@ -221,12 +220,12 @@ if __name__ == '__main__':
     os.chdir("data")
     customer = "0060_SONYCSL001"
     st_dt = "2017-05-13"
-    et_dt = "2017-06-20"
+    et_dt = "2017-06-24"
     data = pd.read_csv(customer + "_" + st_dt + "_" + et_dt + ".csv")
     df_day = makedaydf(data, "POWER")
     #dayschart(df_day, [0, 2000])
     df_w = weather()
-    linechart2(df_day, df_w)
+    #linechart2(df_day, df_w)
     data_aggregation(df_day)
     #print(data)
 

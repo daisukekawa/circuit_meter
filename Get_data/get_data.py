@@ -62,8 +62,8 @@ if __name__ == '__main__':
     #command = "/observed_data?customer=0060_SONYCSL001"
 
     ### Initial setting for the data ###
-    st = "2017-06-25 00:00:00"  #Cus1: 2017-05-13~, Cus2/Cus3: 2017-06-24~
-    et = "2017-06-26 00:00:00"
+    st = "2017-05-13 00:00:00"  #Cus1: 2017-05-13~, Cus2/Cus3: 2017-06-24~, Cus4: 2017-07-02~
+    et = "2017-07-15 00:00:00"
     cus_n = 0 #(0~2)
 
     tunits = "25"   # 20: each minute, 25: each 30 minutes

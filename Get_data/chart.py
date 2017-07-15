@@ -73,8 +73,10 @@ def dayschart(df1, ylimit):
     #ax.text(0, 2400, 'Total energy is {:,d} Wh'.format(len(df1)))
     plt.show()
 
-def linechart(df1, df2, title, ylim):
-    time = df1.index
+def linechart(df1, df2, df3, title, ylim):
+    time = df2.index
+    date = len(df1.columns)
+    
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     xtick = ['0:00', '2:00', '4:00', '6:00', '8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00']
@@ -83,20 +85,24 @@ def linechart(df1, df2, title, ylim):
     ax.set_ylabel("[W]")
     ax.set_xticks(xval)
     ax.set_xticklabels(xtick, rotation=45)
-    ax.set_ylim(ylim)
+    #ax.set_ylim(ylim)
     plt.title(title)
-    plt.plot(time, df1, lw = 1, color = "blue", label = "weekday.ave")
-    plt.plot(time, df2, lw = 1, color = "orangered", label = "weekend.ave")
-    df1_ave = df1.mean(axis=1).mean()/1000*24
+    for i in range(date):
+        plt.plot(df1.iloc[:,i], lw = 0.3, color = "gray")
+
+    plt.plot(time, df2, lw = 1, color = "blue", label = "weekday.ave")
+    plt.plot(time, df3, lw = 1, color = "orangered", label = "weekend.ave")
     df2_ave = df2.mean(axis=1).mean()/1000*24
-    ax.text(0, ylim[1]-50, 'Weekday: {:.2f} kWh'.format(df1_ave))
-    ax.text(0, ylim[1]-100, 'Weekend: {:.2f} kWh'.format(df2_ave))
-    plt.legend()    
+    df3_ave = df3.mean(axis=1).mean()/1000*24
+    ax.text(0, ylim[1]-50, 'Weekday: {:.2f} kWh'.format(df2_ave), color = "blue")
+    ax.text(0, ylim[1]-100, 'Weekend: {:.2f} kWh'.format(df3_ave), color = "orangered")
+    #plt.legend()    
     plt.show()
  
-def linechart2(df_day, df_w):
+def linechart2(df_day):
     df_d = df_day.mean(axis=0)*24/1000
     days = len(df_d)
+    df_w = weather()
     df_w = df_w[0:days]
 
     day = df_day.index
@@ -120,7 +126,53 @@ def linechart2(df_day, df_w):
         label.set_fontsize(8)
     plt.show()
 
+def linechart3(df_day):
+    df_d = df_day.mean(axis=0)*24/1000
+    days = len(df_d)
 
+    day = df_day.index
+    fig, ax0 = plt.subplots(figsize=(10,8))
+
+    ax0.plot(df_d)
+    ax0.set_ylabel("Demand [kWh]", fontsize = 8)
+    for label in (ax0.get_xticklabels() + ax0.get_yticklabels()):
+        label.set_fontsize(8)
+    plt.show()
+    
+def linechart4(df_day1, df_day2, df_day3, df_day4):
+    df_d1 = df_day1.mean(axis=0)*24/1000
+    df_d2 = df_day2.mean(axis=0)*24/1000
+    df_d3 = df_day3.mean(axis=0)*24/1000
+    df_d4 = df_day4.mean(axis=0)*24/1000
+    days = len(df_d1)
+
+    #day = df_day1.index
+    fig, ax0 = plt.subplots(figsize=(10,8))
+    
+    print(df_d1.iloc[1])
+    print(df_d1.index[0])
+    print(ax0.get_xticklabels())
+    print("house1: {:.2f} kWh".format(df_d1.mean()))
+    print("house2: {:.2f} kWh".format(df_d2.mean()))
+    print("house3: {:.2f} kWh".format(df_d3.mean()))
+    print("house4: {:.2f} kWh".format(df_d4.mean()))
+    ax0.plot(df_d1)
+    ax0.plot(df_d2)
+    ax0.plot(df_d3)
+    ax0.plot(df_d4)
+    ax0.set_ylabel("Demand [kWh]", fontsize = 9)
+    ax0.text(df_d1.index[0], 6.0, 'house1: {:.2f} kWh'.format(df_d1.mean()), color = "blue")
+    ax0.text(df_d1.index[0], 5.5, 'house2: {:.2f} kWh'.format(df_d2.mean()), color = "orangered")
+    ax0.text(df_d1.index[0], 5.0, 'house3: {:.2f} kWh'.format(df_d3.mean()), color = "green")
+    ax0.text(df_d1.index[0], 4.5, 'house4: {:.2f} kWh'.format(df_d4.mean()), color = "red")
+    #ax0.text(0, ylim[1]-100, 'Weekend: {:.2f} kWh'.format(df3_ave), color = "orangered")
+    plt.legend(['house1', 'house2', 'house3', 'house4'])  
+    for label in (ax0.get_xticklabels() + ax0.get_yticklabels()):
+        label.set_fontsize(8)
+        
+    plt.show()  
+    
+    
 def barplot(df1, df2, title):
     fig, ax = plt.subplots()
     width = 0.5
@@ -198,7 +250,7 @@ def data_aggregation(df1):
 
     ylim = [0, 1000]
     ylim2 = [0, 15]
-    linechart(df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
+    linechart(df1, df_wd_ave, df_we_ave, "Weekday and Weekend, {} ~ {}".format(df1.columns.min(), df1.columns.max()), ylim)
     #barplot(df_wd_agg, df_we_agg, "Energy Consumption")
     
     print("Peak: {:.2f} kW".format(peak))
@@ -218,16 +270,32 @@ def weather():
     
 if __name__ == '__main__': 
     os.chdir("data")
-    customer = "0060_SONYCSL001"
+    customers = ['0060_SONYCSL001', '0060_SONYCSL002', '0060_SONYCSL003', '0060_SONYCSL004']
     st_dt = "2017-05-13"
-    et_dt = "2017-06-24"
-    data = pd.read_csv(customer + "_" + st_dt + "_" + et_dt + ".csv")
-    df_day = makedaydf(data, "POWER")
-    #dayschart(df_day, [0, 2000])
-    df_w = weather()
-    #linechart2(df_day, df_w)
-    data_aggregation(df_day)
-    #print(data)
-
-    #print(data['time'].apply(lambda x: datetime.datetime.date(x)))
+    et_dt = "2017-07-14"
     
+    house_list = ['house01', 'house02', 'house03', 'house04']
+    n = 0   #(Select house number: 0-n)
+    
+    df = pd.DataFrame() # df for all houses
+    
+    for i in range(len(customers)):
+        data = pd.read_csv(customers[i] + "_" + st_dt + "_" + et_dt + ".csv")
+        df[house_list[i]] = data['POWER']
+    
+    #df_house = pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, n]}) # for certain house
+    df_com = pd.DataFrame({'TIME': data['TIME'], 'POWER': df.mean(axis=1)})
+    
+    df_day_h1 = makedaydf(pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, 0]}), 'POWER')
+    df_day_h2 = makedaydf(pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, 1]}), 'POWER')
+    df_day_h3 = makedaydf(pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, 2]}), 'POWER')
+    df_day_h4 = makedaydf(pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, 3]}), 'POWER')
+    df_day_c = makedaydf(df_com, 'POWER')
+    
+    
+    #linechart2(df_day_h1)  # plot daily consumptions and weather data for the duration.
+    #linechart3(df_day_h1) # plot daily consumptions for the duration
+    linechart4(df_day_h1, df_day_h2, df_day_h3, df_day_h4)   # plot daily consumptions for the duration
+    #data_aggregation(df_day_h1) # plot hourly consumptions and weekday weekend data.
+    #print(df.tail())
+    #linechart4(df_day_h)

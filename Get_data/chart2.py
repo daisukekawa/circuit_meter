@@ -48,11 +48,11 @@ def linechart(df1, df2, title, house, ylim):
     
 if __name__ == '__main__': 
     os.chdir("data")
-    customers = ['0060_SONYCSL001', '0060_SONYCSL002', '0060_SONYCSL003']
-    st_dt = "2017-06-25"
-    et_dt = "2017-06-25"
+    customers = ['0060_SONYCSL001', '0060_SONYCSL002', '0060_SONYCSL003', '0060_SONYCSL004']
+    st_dt = "2017-07-06"
+    et_dt = "2017-07-06"
     
-    house_list = ['house01', 'house02', 'house03']
+    house_list = ['house01', 'house02', 'house03', 'house04']
     n = 0   #(Select house number: 0-n)
     
     df = pd.DataFrame()
@@ -61,13 +61,11 @@ if __name__ == '__main__':
         data = pd.read_csv(customers[i] + "_" + st_dt + "_" + et_dt + ".csv")
         df[house_list[i]] = data['POWER']
     
-    #df_house = pd.DataFrame({'TIME': data['TIME'], 'POWER': df['house01']})
     df_house = pd.DataFrame({'TIME': data['TIME'], 'POWER': df.iloc[:, n]})
     df_com = pd.DataFrame({'TIME': data['TIME'], 'POWER': df.mean(axis=1)})
     
     df_day_h = makedaydf(df_house, 'POWER')
     df_day_c = makedaydf(df_com, 'POWER')
-    print(df_day_h.iloc[:,0].head())
     linechart(df_day_h, df_day_c, st_dt, house_list[n], [0,2000])
     
 
